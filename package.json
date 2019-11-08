@@ -1,22 +1,52 @@
 {
   "name": "dashboard-tile-builder",
   "version": "0.0.1",
-  "description": "ready-to-use dashboard tile builder",
-  "main": "index.js",
+  "description": "ready-to-use react dashboard tile builder",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rimraf dist src/schemas",
+    "lint": "tslint --project tsconfig.json --fix --exclude src/schemas/**/*",
+    "prebuild": "npm run clean && node build.js && npm run lint",
+    "build": "tsc",
+    "develop": "npm run build && npm start",
+    "pretest": "npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vincenzocaruso/dashboard-tile-builder.git"
   },
   "keywords": [
-    "dashboard"
+    "dashboard",
+    "typescript",
+    "react"
   ],
   "author": "Vincenzo Caruso",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/vincenzocaruso/dashboard-tile-builder/issues"
   },
-  "homepage": "https://github.com/vincenzocaruso/dashboard-tile-builder#readme"
+  "homepage": "https://github.com/vincenzocaruso/dashboard-tile-builder#readme",
+  "dependencies": {
+    "react": "^16.11.0",
+    "react-grid-layout": "^0.16.6",
+    "typescript": "^3.7.2",
+    "classnames": "^2.2.6"
+  },
+  "devDependencies": {
+    "@types/react": "^16.8.17",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-grid-layout": "^0.16.7",
+    "@types/semver": "^5.5.0",
+    "@typescript-eslint/eslint-plugin": "^1.10.2",
+    "@typescript-eslint/parser": "^1.10.2",
+    "eslint": "^5.16.0",
+    "eslint-plugin-react-hooks": "^1.6.0",
+    "node-sass": "^4.12.0",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.17.0",
+    "tslint-react-hooks": "^2.1.1",
+    "typescript": "^3.5.2"
+  }
 }

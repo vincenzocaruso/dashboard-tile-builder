@@ -1,0 +1,225 @@
+@import '~theme/mixins';
+@import '~theme/constants';
+
+$tile-size: 200px;
+$rounded-resize-icon: "\ED65";
+$resize-width: 1.2px;
+$padding-tile: 30px;
+// small dimension, we don't want to show this span
+$dimension-span: 0.1px;
+$button-size: $grid-size*8;
+
+// grid container
+.tile-builder.grid-layout-container {
+  width: 100%;
+  overflow: auto;
+  flex: 1 1 auto;
+  // react grid layout -> container style specific
+  :global(.react-grid-layout) {
+    position: relative;
+    transition: height 200ms ease;
+    overflow: auto;
+    direction: ltr;
+
+    @include rtl {
+      :global(.react-grid-item) {
+        direction: ltr;
+      }
+    }
+  }
+
+  .action-bar {
+    @include rtl {
+      justify-content: flex-start;
+      right: unset;
+    }
+  }
+
+
+  // react grid layout item -> tile style specific
+  :global(.react-grid-item) {
+    transition: all 200ms ease;
+    transition-property: left, top;
+    z-index: $z-index-medium-step;
+    width: $tile-size;
+    height: $tile-size;
+    user-select: none;
+    // set to relative positioning so we can place the action-bar at the top of the item:
+    position: relative;
+
+    &.is-dragging {
+      background-color: var(--color-bg-selected);
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+
+      &:not(.is-dragging) {
+        &>.action-bar {
+          display: flex; // show the action bar
+        }
+
+        :global(.react-resizable-handle) {
+          display: flex;
+        }
+      }
+
+    }
+
+
+    &:global(.expanded) {
+      z-index: 100;
+    }
+
+    &.focused {
+      outline: 2px solid var(--color-border-selected);
+      outline-offset: 0;
+
+      &>.action-bar {
+        display: flex; // show the action bar
+      }
+
+    }
+
+    &:global(.cssTransforms) {
+      transition-property: transform;
+    }
+
+    &:global(.react-grid-placeholder) {
+      background-color: var(--color-border-tile);
+      outline: 1px solid var(--color-border-tile);
+      opacity: .2;
+      z-index: 3;
+    }
+
+    &:global(.react-resizable) {
+      position: relative;
+      transition: none;
+      will-change: transform;
+
+      &:global(.resizing),
+      &:global(.react-draggable-dragging) {
+        z-index: $z-index-large-step;
+      }
+    }
+
+    :global(.react-resizable-handle) {
+      cursor: se-resize;
+      touch-action: none;
+      position: absolute;
+      right: $grid-size;
+      bottom: $grid-size;
+      width: $grid-size*4;
+      height: $grid-size*4;
+      z-index: 1;
+      border-top-style: solid;
+      border-right-style: solid;
+      border-bottom-style: solid;
+      border-left-style: solid;
+      border-top-width: 0;
+      border-right-width: $resize-width;
+      border-bottom-width: $resize-width;
+      border-left-width: 0;
+      display: none;
+      border-top-color: var(--color-border-focus);
+      border-right-color: var(--color-border-focus);
+      border-bottom-color: var(--color-border-focus);
+      border-left-color: var(--color-border-focus);
+    }
+  }
+
+  .grid-layout-content {
+    height: 100% !important;
+    scroll-behavior: smooth;
+
+    // tile container Central style specific
+    .command-toolbar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: $grid-size*6;
+      height: $grid-size*6;
+      z-index: 1;
+
+      .command-toolbar-tile {
+        border: 1px solid var(--color-border-tile);
+      }
+
+      // action on the tile on consumption mode
+      .command-items {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          width: 100%;
+
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    // action on a tile during the authoring mode
+    .builder-command-toolbar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      justify-content: flex-end;
+      z-index: $z-index-interruptable-layer;
+
+      button {
+        width: $button-size;
+        height: $button-size;
+      }
+
+      outline: 1px solid var(--color-text-rest);
+      background-color: var(--color-bg-container-panel);
+
+      .action-tile-icon {
+        color: var(--color-text-rest);
+      }
+    }
+
+    .tile-container {
+      box-shadow: var(--depth-1);
+    }
+
+    .tile-container,
+    .tile-container>div {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: var(--color-bg-container-panel);
+      border-radius: $component-border-radius;
+    }
+
+    .extra-padding-right {
+      height: $dimension-span;
+      width: calc(100% + #{$padding-tile});
+      display: block;
+      background: transparent;
+      color: transparent;
+      position: absolute;
+      top: 0;
+      left: 0;
+      visibility: hidden;
+    }
+
+    .extra-padding-bottom {
+      width: $dimension-span;
+      height: calc(100% + #{$padding-tile});
+      display: block;
+      background: transparent;
+      color: transparent;
+      position: absolute;
+      top: 0;
+      left: 0;
+      visibility: hidden;
+    }
+  }
+}
