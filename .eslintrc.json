@@ -1,0 +1,135 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "jsx": true,
+      "useJSXTextNode": true,
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "project": "./tsconfig.json",
+      "tsconfigRootDir": "./"
+    },
+    "env": {
+      "browser": true,
+      "es6": true,
+      "node": true
+    },
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    },
+    "plugins": ["@typescript-eslint", "react-hooks", "etc", "react"],
+    "rules": {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "error",
+      "@typescript-eslint/array-type": [
+        "error",
+        {
+          "default": "array"
+        }
+      ],
+      // Enabling the defaults would be nice, but there are approximately 2,000 violations, so probably not worth it for now
+      "@typescript-eslint/naming-convention": [
+        "error",
+        // Enable the equivalent of the TSLint class-name rule.
+        {
+          "selector": ["class", "interface"],
+          "format": ["PascalCase"]
+        }
+      ],
+      "@typescript-eslint/no-misused-new": "error",
+      "@typescript-eslint/no-unused-expressions": [
+        "error",
+        {
+          "allowShortCircuit": true,
+          "allowTernary": true
+        }
+      ],
+      "@typescript-eslint/prefer-for-of": "error",
+      "@typescript-eslint/prefer-namespace-keyword": "error",
+      "curly": "error",
+      "eqeqeq": ["error", "smart"],
+      "id-match": "error",
+      "new-parens": "error",
+      "no-eval": "error",
+      "@typescript-eslint/no-invalid-this": "error",
+      "no-new-wrappers": "error",
+      "@typescript-eslint/no-redeclare": ["error", { "ignoreDeclarationMerge": true }],
+      "no-var": "error",
+      "prefer-const": ["error", {"destructuring": "all"} ],
+      "spaced-comment": [
+        "error",
+        "always",
+        {
+          "markers": ["/"]
+        }
+      ],
+      "etc/no-const-enum": "error",
+      "no-restricted-imports": ["error", {
+        "paths": [{
+          "name": "@fluentui/react",
+          "importNames": ["Dropdown"],
+          "message": "Please use Dropdown from src/controls/Dropdown instead."
+        }]
+      }],
+      "@typescript-eslint/semi": ["error"],
+      "@typescript-eslint/quotes": ["error", "single", {
+        "allowTemplateLiterals": true
+      }],
+      "@typescript-eslint/type-annotation-spacing": ["error"],
+      "@typescript-eslint/space-before-function-paren": [
+        "error",
+        {
+          "anonymous": "always",
+          "named": "never",
+          "asyncArrow": "always"
+        }
+      ],
+      "react/display-name": ["error"],
+      // Using angle bracket syntax for type assertions can confuse Next's SWC TypeScript compiler
+      // because it doesn't distinguish between .ts and .tsx files.
+      "@typescript-eslint/consistent-type-assertions": ["error"],
+      // The following rules come from our common config, but are disabled because of the massive
+      // codebase churn they would cause.
+      "prefer-arrow/prefer-arrow-functions": "off",
+      "comma-dangle": "off",
+      "@typescript-eslint/promise-function-async": "off",
+      "import/order": "off",
+      "unicorn/filename-case": "off",
+      "import/no-unassigned-import": "off",
+      "dot-notation": "off",
+      "@typescript-eslint/dot-notation": "off",
+      "@typescript-eslint/tslint/config": "off",
+      "object-shorthand": "off",
+      "arrow-body-style": "off",
+      "no-invalid-this": "off",
+      "@typescript-eslint/member-ordering": "off",
+      "@typescript-eslint/explicit-member-accessibility": "off",
+      "@typescript-eslint/no-parameter-properties": "off",
+      "no-useless-constructor": "off",
+      "one-var": "off",
+      "no-undef-init": "off",
+      "no-duplicate-imports": "off",
+      "@typescript-eslint/no-unnecessary-type-assertion": "off", // This rule's auto-fixer doesn't work well, and can potentially break things.
+      // The following rules from the common config are potentially useful, but require a team discussion before adoption.
+      "no-restricted-syntax": "off", // forbids for .. in loops
+      "@typescript-eslint/no-for-in-array": "off",
+      "prefer-template": "off",
+      "@typescript-eslint/consistent-type-definitions": "off",
+      "no-param-reassign": "off",
+      "@typescript-eslint/no-unnecessary-boolean-literal-compare": "off", // May not be safe without strict null checks
+      "no-fallthrough": "off", // forbids fallthroughs in switch statements
+      "no-unused-expressions": [2, {
+        "allowShortCircuit": true,
+        "allowTernary": true
+      }],
+      "@typescript-eslint/ban-types": "off", // Bans some of TS's more confusing types. We should strongly consider implementing this one.
+      "@typescript-eslint/no-floating-promises": "off",
+      "radix": "off", // Requires the radix argument for parseInt(), like parseInt(someString, 10) to avoid problems with octal numbers.
+      "no-throw-literal": "off" // Only one violation, but it requires discussion
+    }
+  }
+  

@@ -1,20 +1,11 @@
-import { Implementation } from '@azure-iot/service-error';
-import * as classnames from 'classnames/bind';
+import clsx from 'clsx';
+import { Keys } from 'keyboardKeys';
 import * as React from 'react';
-import InView from 'react-intersection-observer';
-import { Keys } from 'shared/keyboardKeys';
-import { ErrorBoundary } from '../errorBoundary';
-import { useTranslation } from '../stores/i18n';
-import { TabOrder } from '../tabOrder';
-import { TileMenuControl, TileMenuItemProps, TileMenuItemType } from '../TileMenuControl';
-import ErrorTile from '../tiles/errorTile';
-import { TileProperties, TileSize, TileState, TileVisualization } from './models';
-import { Authorization } from 'shared/stores';
-import { EnumValue } from 'shared/form';
+import { useInView } from 'react-intersection-observer';
+import { TileMenuControl } from 'tileMenuControl';
+import { TileMenuItemProps, TileProperties, TileSize, TileState, TileVisualization } from './models';
+import * as style from './tileBuilder.module.scss';
 
-const cx = classnames.bind(require('./tileBuilder.module.scss'));
-
-const isEdge = IS_CLIENT && !!(window as any).StyleMedia;
 const SizesPopupMenuWidth = 75;
 const VizualizationPopupMenuWidth = 150;
 
@@ -41,9 +32,10 @@ export interface TileContainerProps {
 }
 
 export const TileContainer = React.memo((tileProperties: TileContainerProps) => {
-    const { t } = useTranslation();
     const [focus, setFocus] = React.useState(false);
-
+    const { ref, inView } = useInView({
+        threshold: 0,
+    });
     const {
         id,
         key,
@@ -79,55 +71,37 @@ export const TileContainer = React.memo((tileProperties: TileContainerProps) => 
         }
     }, [builderActionRef]);
 
-    const keyDown = React.useCallback((ev: React.KeyboardEvent<HTMLElement>) => {
-        // check if the key is ↔️ or ↕️
-        if ([Keys.ArrowLeft, Keys.ArrowUp, Keys.ArrowRight, Keys.ArrowDown].includes(ev.keyCode) &&
-            // move a tile only if the focus is on the tile.
-            // this avoid to move the tile if you doing some resize
-            ev.target['nodeName'] === 'SECTION') {
-            onTileMove(ev.keyCode, id);
-        }
-    }, [id, onTileMove]);
 
-    return <InView >
-        {({ inView, ref }) => (
-            <section
-                ref={ref}
-                {...gridItemProps}
-                className={cx(className, { expanded: actionsexpanded }, { focused: focus })}
-                tabIndex={editable ? TabOrder.KeyboardTabStop : undefined}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                onKeyDown={editable ? keyDown : undefined}
-                aria-roledescription={editable && t('Core.MovableItemWithArrowKeys')}
-            >
-                    {inView && editable && <BuilderActionItem
-                        ref={builderActionRef}
-                        index={id}
-                        availableSize={availableSize}
-                        onSelectSize={selectSize}
-                        onTileEdit={isEditShown && onTileEdit}
-                        onTileDelete={onTileDelete}
-                        availableVisualization={availableVisualization}
-                        onSelectVisualization={onSelectVisualization}
-                        disabled={disabled}
-                    />}
-                    {/* Disable tile content virtualization in Edge since EventSource polyfill can brick the browser */}
-                    {(inView || isEdge) && <div key='tile-container' className={cx('tile-container')}>
-                        <ErrorBoundary render={err => renderError(err, props)}>
-                            {render(props, state, editable)}
-                            {children}
-                        </ErrorBoundary>
-                    </div>}
-                <span key={'extra-padding-right'} className={cx('extra-padding-right')}></span>
-                <span key={'extra-padding-bottom'} className={cx('extra-padding-bottom')}></span>
-            </section >
-        )}
-    </InView>;
+    return <div
+        ref={ref}
+        {...gridItemProps}
+        className={clsx(className, { expanded: actionsexpanded }, { focused: focus })}
+        tabIndex={editable ? 1 : undefined}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        aria-roledescription={editable? 'editable tile' : 'tile'}
+    >
+        {inView && editable && <BuilderActionItem
+            ref={builderActionRef}
+            index={id}
+            availableSize={availableSize}
+            onSelectSize={selectSize}
+            onTileEdit={isEditShown && onTileEdit}
+            onTileDelete={onTileDelete}
+            availableVisualization={availableVisualization}
+            onSelectVisualization={onSelectVisualization}
+            disabled={disabled}
+        />}
+        {inView && <div key='tile-container' className={clsx(style['tile-container'])}>
+            {render(props, state, editable)}
+            {children}
+        </div>}
+        <span key={'extra-padding-right'} className={clsx(style['extra-padding-right'])}></span>
+        <span key={'extra-padding-bottom'} className={clsx(style['extra-padding-bottom'])}></span>
+    </div >;
 });
 
 interface BuilderActionItemProps {
-    isPermitted?: Authorization.IsPermitted;
     index: number;
     onTileEdit: (index: number) => void;
     onTileDelete: (index: number) => void;
@@ -139,10 +113,9 @@ interface BuilderActionItemProps {
 }
 
 const BuilderActionItem = React.forwardRef((props: BuilderActionItemProps, ref) => {
-    const { t } = useTranslation();
     const { index, availableSize, onTileDelete, onTileEdit, onSelectSize, onSelectVisualization, availableVisualization, disabled } = props;
 
-    const { sizesList, sizesMap } = React.useMemo<{ sizesList: EnumValue[], sizesMap: Map<string, TileSize>}>(() => {
+    const { sizesList, sizesMap } = React.useMemo<{ sizesList: any[], sizesMap: Map<string, TileSize> }>(() => {
         const sizesMap = new Map<string, TileSize>();
         const sizesList = availableSize
             ? availableSize.map((x: TileSize) => {
@@ -157,17 +130,17 @@ const BuilderActionItem = React.forwardRef((props: BuilderActionItemProps, ref) 
             })
             : [];
 
-            return {sizesList, sizesMap};
+        return { sizesList, sizesMap };
     }, [availableSize]);
 
-    const vizListProps = React.useMemo<EnumValue[]>(() => availableVisualization
+    const vizListProps = React.useMemo<any[]>(() => availableVisualization
         ? availableVisualization.map(({ value, displayName }) => ({
-                value,
-                displayName,
-                title: displayName
-            }))
+            value,
+            displayName,
+            title: displayName
+        }))
         : []
-    , [availableVisualization]);
+        , [availableVisualization]);
 
     const handleSelectSize = React.useCallback((sizeValue: string) => {
         if (onSelectSize) {
@@ -186,22 +159,22 @@ const BuilderActionItem = React.forwardRef((props: BuilderActionItemProps, ref) 
 
         if (onTileEdit) {
             items.push({
-                type: TileMenuItemType.ActionTriggerButton,
+                type: 'button',
                 key: 'edit',
                 icon: 'settings',
                 onClick: () => onTileEdit(index),
-                title: t('Core.Configure'),
+                title: 'Configure',
                 disabled: disabled
             });
         }
 
         if (onTileDelete) {
             items.push({
-                type: TileMenuItemType.ActionTriggerButton,
+                type: 'button',
                 key: 'delete',
                 icon: 'chromeClose',
                 onClick: () => onTileDelete(index),
-                title: t('Core.Delete'),
+                title: 'Delete',
                 disabled: disabled
             });
         }
@@ -210,9 +183,9 @@ const BuilderActionItem = React.forwardRef((props: BuilderActionItemProps, ref) 
             items.unshift({
                 id: `availableSize${index}`,
                 key: `availableSize${index}`,
-                type: TileMenuItemType.InlinePopup,
+                type: 'inlinePopup',
                 icon: 'resizeMouseMediumMirrored',
-                title: t('DeviceDefinitions.Dashboard.AvailableSize'),
+                title: 'AvailableSize',
                 panelList: sizesList,
                 onItemSelect: handleSelectSize,
                 panelWidth: SizesPopupMenuWidth,
@@ -223,9 +196,9 @@ const BuilderActionItem = React.forwardRef((props: BuilderActionItemProps, ref) 
             items.unshift({
                 id: `changeViz${index}`,
                 key: `changeViz${index}`,
-                type: TileMenuItemType.InlinePopup,
+                type: 'inlinePopup',
                 icon: 'design',
-                title: t('Core.ChangeVisualization'),
+                title: 'ChangeVisualization',
                 panelList: vizListProps,
                 onItemSelect: handleSelectVizualization,
                 panelWidth: VizualizationPopupMenuWidth,
@@ -234,21 +207,7 @@ const BuilderActionItem = React.forwardRef((props: BuilderActionItemProps, ref) 
         }
 
         return items;
-    }, [onTileEdit, onTileDelete, sizesList, availableVisualization, t, disabled, index, handleSelectSize, vizListProps, handleSelectVizualization]);
+    }, [onTileEdit, onTileDelete, sizesList, availableVisualization, disabled, index, handleSelectSize, vizListProps, handleSelectVizualization]);
 
-    return <TileMenuControl ref={ref} className={cx('action-bar')} items={menuItems} />;
+    return <TileMenuControl ref={ref} className={clsx(style['action-bar'])} items={menuItems} />;
 });
-
-function renderError(props: TileProperties, err: Implementation<any>) {
-    const { title, layout, type } = props;
-    return (
-        <ErrorTile.render isEditable={null} state={null} props={{
-            config: {
-                errorViewProps: err
-            },
-            title,
-            layout,
-            type,
-        }} />
-    );
-}

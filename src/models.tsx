@@ -15,6 +15,7 @@ export interface TileProperties {
     type: string;
     config: any;
     layout: {
+        i: string;
         x: number;
         y: number;
         h: number;
@@ -94,7 +95,7 @@ export interface BaseTile<T> {
     /**
      * it return a list of actions to render based on the context
      */
-    getTileActions?: () => [];
+    getTileActions?: () => TileMenuItemProps[];
     /**
      * returns the available sizes of a specific tile
      */
@@ -108,3 +109,6 @@ export interface BaseTile<T> {
      */
     getSizeLimits?: () => TileSizeLimits;
 }
+
+
+export interface TileMenuItemProps { }

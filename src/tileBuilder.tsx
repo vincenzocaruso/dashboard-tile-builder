@@ -1,14 +1,12 @@
-import * as classnames from 'classnames/bind';
+import clsx from 'clsx';
 import * as React from 'react';
-import * as GridLayout from 'react-grid-layout';
+import GridLayout from 'react-grid-layout';
 import { TileBuilderProperties, TileProperties, TileSize, TileVisualization } from './models';
 import { TileContainer, TileContainerProps } from './tileContainer';
-import { produce } from 'immer';
-import { sortLayout } from './helper';
-import { Keys } from 'shared/keyboardKeys';
-import { TranslationFunction } from 'i18next';
-import { Tiles } from '../tiles';
-const cx = classnames.bind(require('./tileBuilder.module.scss'));
+import produce from 'immer';
+import Tiles from './tiles';
+import * as style from '.tileBuilder.module.scss';
+import { Keys } from 'keyboardKeys';
 
 interface State {
     actionsexpanded: number;
@@ -26,6 +24,7 @@ export class TileBuilder extends React.Component<TileBuilderProperties, State> {
             for (let idx = 0; idx < newLayout.length; idx++) {
                 const tile = newLayout[idx];
                 draft[idx].layout = {
+                    i: tile.i,
                     x: tile.x || 0,
                     y: tile.y || 0,
                     h: tile.h || 1,
@@ -138,7 +137,6 @@ export class TileBuilder extends React.Component<TileBuilderProperties, State> {
 
     render() {
         const {
-            t,
             tiles: tileProps,
             tileStates,
             render,
@@ -193,21 +191,15 @@ export class TileBuilder extends React.Component<TileBuilderProperties, State> {
                 onTileEdit,
                 onTileMove: this.onTileMove,
                 onSelectVisualization,
-                availableVisualization: getAvailableVisualization(tileProperties, t),
+                availableVisualization: getAvailableVisualization(tileProperties),
                 disabled
             };
             tilesElement.push(<TileContainer {...props} />);
         }
 
-        // sort the tiles in the layouts so that we don't have to
-        // set specific tab order to make keyboard navigation work
-        // in a predictable manner
-        // https://github.com/STRML/react-grid-layout/issues/340
-        layout = layout.sort(sortLayout);
-
         return (
-            <div className={cx('tile-builder', 'grid-layout-container', className)} onClick={this.onClickHandler} >
-                <GridLayout ref={this.gridLayoutContentRef} {...this.tileBuilderConfiguration} className={cx('grid-layout-content', className)} layout={layout}>
+            <div className={clsx(style['tile-builder'], style['grid-layout-container'], className)} onClick={this.onClickHandler} >
+                <GridLayout ref={this.gridLayoutContentRef} {...this.tileBuilderConfiguration} className={clsx('grid-layout-content', className)} layout={layout}>
                     {tilesElement}
                 </GridLayout>
             </div>
@@ -225,15 +217,8 @@ const fallBackLayout = (i): ReactGridLayout.Layout => {
     };
 };
 
-export function getAvailableVisualization(props: TileProperties, t: TranslationFunction): TileVisualization[] {
+export function getAvailableVisualization({}: TileProperties): TileVisualization[] {
     const availableViz: TileVisualization[] = [];
-    for (const tileType in Tiles) {
-        if (tileType !== 'eventKpi' && tileType !== 'telemKpi' && Tiles[tileType].isTileAvailable) {
-            const displayName = Tiles[tileType].isTileAvailable(tileType, props, t);
-            if (displayName) {
-                availableViz.push({ value: tileType, displayName });
-            }
-        }
-    }
+    // TODO: add logic
     return availableViz;
 }
