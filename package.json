@@ -1,6 +1,6 @@
 {
   "name": "dashboard-tile-builder",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha.4",
   "description": "ready-to-use react dashboard tile builder",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

@@ -1,1 +1,0 @@
-exports.printMsg = require('./dist').default;
